@@ -1,6 +1,9 @@
 
 import sys
 import re
+
+import check_c_bb
+
 filename = sys.argv[1]
 with open(filename) as file:
     data = file.read()
@@ -8,6 +11,106 @@ with open(filename) as file:
 basebloks = []
 funclist = []
 outputstr = ""
+
+inputstr = "this->input.str"
+
+def check_fi(text, index):
+    i = 0
+    fi = 0
+    while(True):
+        if text[index + i] == '{':
+            fi = fi + 1
+        elif text[index + i] == '}':
+            fi = fi - 1
+            if fi == 0:
+                return index + i
+        i = i + 1
+
+def check_li(text, index):
+    i = 0
+    li = 0
+    while(True):
+        if text[index + i] == '(':
+            li = li + 1
+        elif text[index + i] == ')':
+            li = li - 1
+            if li == 0:
+                return index + i
+        i = i + 1
+
+def func_bb(text):
+    li = 0
+    fi = 0
+    fi_prev = 0;
+    li_prev = 0
+    arr = []
+    outstr = ""
+    outstr = re.sub("\)[ \t]*\n?[ \t]*\{", ")\n{\n"+inputstr, text)
+    outstr = re.sub("}", "\n"+inputstr + "\n}", outstr)
+
+    for match in re.finditer("\)[ \t]*\n?[ \t]*\{", text):
+        print('g', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+        print(text[check_fi(text, match.end() - 1)])
+    for match in re.finditer("}", text):
+        print('gg', match.start())
+        print(text[match.start()])
+        arr.append(match.start())
+    for match in re.finditer("[ \t\n;]+if[ \t\n]*\(", text):
+        print('ggg', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    for match in re.finditer("[ \t\n;]+for[ \t\n]*\(", text):
+        print('f', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    for match in re.finditer("[ \t\n;]+while[ \t\n]*\(", text):
+        print('ff', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    for match in re.finditer("[ \t\n;]+do[ \t\n]*\{", text):
+        print('fff', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    for match in re.finditer("[ \t\n;]+switch[ \t\n]*\(", text):
+        print('fff', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    for match in re.finditer("[ \t\n;]+case[ \t\n]* ", text):
+        print('fff', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    for match in re.finditer("[ \t\n;]+return ", text):
+        print('rrr', match.start())
+        arr.append(match.start())
+        print(text[match.start()])
+    print(arr)
+    #"[ \t\n;]+if[ \t]*\("
+    #"[ \t\n;]+for[ \t]*\("
+    #print(outstr)
+
+   # print(re.sub("\([*.+]\)['\n' | ' ']\{", "\([*.]\)['\n' | ' ']\{[*.]\}"[:-1] + "\n"+inputstr+"}", outstr))
+    lines = text.split('\n')
+    for line in lines:
+        for c in line:
+            if c == '(':
+                li_prev = li
+                li = li + 1
+            elif c == ')':
+                li_prev = li
+                li = li - 1
+            elif c == '{':
+                fi_prev = fi
+                fi = fi + 1
+                if li_prev != 0:
+                    print("base block start")
+            elif c == '}':
+                fi_prev = fi
+                fi = fi - 1
+            else:
+                fi_prev = 0
+                li_prev = 0
 def check_function(text):
     global outputstr
     li = 0
@@ -83,8 +186,8 @@ print(basebloks, funclist)
 
 print(outputstr)
 
-with open(filename) as file:
-    i = -1
-    for line in file:
-        i = i + 1
-    #    print(line.rstrip(), i)
+func_bb(oun)
+
+
+x = check_c_bb.Check_bb()
+x.get_func_bb(oun)
